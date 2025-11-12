@@ -1,0 +1,18 @@
+{
+  "name": "eye-nose-mouse-game",
+  "version": "1.0.0",
+  "description": "Face parts falling game with Phaser 3",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 8080 -o"
+  },
+  "keywords": ["phaser", "game"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "phaser": "^3.80.1"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
