@@ -2,17 +2,49 @@
   "name": "eye-nose-mouse-game",
   "version": "1.0.0",
   "description": "Face parts falling game with Phaser 3",
-  "main": "index.html",
+  "main": "main.js",
   "scripts": {
-    "start": "npx http-server -p 8080 -o"
+    "start": "npx http-server -p 8080 -o",
+    "electron": "electron .",
+    "build": "electron-builder --windows --x64",
+    "build:all": "electron-builder --windows --mac --linux"
   },
-  "keywords": ["phaser", "game"],
+  "build": {
+    "appId": "com.eyenosemouse.game",
+    "productName": "Eye Nose Mouse Game",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/**/*",
+      "node_modules/phaser/dist/phaser.min.js"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    }
+  },
+  "keywords": [
+    "phaser",
+    "game"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
     "phaser": "^3.80.1"
   },
   "devDependencies": {
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.12",
     "http-server": "^14.1.1"
   }
 }
