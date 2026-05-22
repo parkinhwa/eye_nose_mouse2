@@ -2,8 +2,8 @@ const { app, BrowserWindow } = require('electron');
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1000,
+    height: 800,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true
@@ -12,8 +12,11 @@ function createWindow() {
 
   win.loadFile('index.html');
 
+  // 개발 중 캐시 비활성화
+  win.webContents.session.clearCache();
+
   // 개발 중에는 DevTools 열기 (배포 시 주석 처리 가능)
-  // win.webContents.openDevTools();
+  win.webContents.openDevTools();
 }
 
 if (app) {

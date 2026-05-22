@@ -33,6 +33,12 @@ class GameScene extends Phaser.Scene {
     const centerY = this.cameras.main.height / 2;
     this.faceX = centerX;
     this.faceY = centerY;
+    do { this.eyeStyle = Phaser.Math.Between(0, 3); } while (this.eyeStyle === prevEyeStyle);
+    prevEyeStyle = this.eyeStyle;
+    do { this.noseStyle = Phaser.Math.Between(0, 2); } while (this.noseStyle === prevNoseStyle);
+    prevNoseStyle = this.noseStyle;
+    do { this.mouthStyle = Phaser.Math.Between(0, 3); } while (this.mouthStyle === prevMouthStyle);
+    prevMouthStyle = this.mouthStyle;
 
     // 배경
     this.add
@@ -41,7 +47,7 @@ class GameScene extends Phaser.Scene {
         0,
         this.cameras.main.width,
         this.cameras.main.height,
-        0xf0e6d2
+        0xf0e6d2,
       )
       .setOrigin(0);
 
@@ -83,39 +89,39 @@ class GameScene extends Phaser.Scene {
     // 4판: 귀 추가 (얼굴 뒤에 배치하기 위해 먼저 그림)
     if (gameCount > 3) {
       this.faceElements.push(
-        this.add.ellipse(this.faceX - 115, this.faceY, 30, 50, 0xffd4a3)
+        this.add.ellipse(this.faceX - 115, this.faceY, 30, 50, 0xffd4a3),
       );
       this.faceElements.push(
         this.add
           .ellipse(this.faceX - 115, this.faceY, 30, 50)
-          .setStrokeStyle(3, 0x000000)
+          .setStrokeStyle(3, 0x000000),
       );
       this.faceElements.push(
-        this.add.ellipse(this.faceX + 115, this.faceY, 30, 50, 0xffd4a3)
+        this.add.ellipse(this.faceX + 115, this.faceY, 30, 50, 0xffd4a3),
       );
       this.faceElements.push(
         this.add
           .ellipse(this.faceX + 115, this.faceY, 30, 50)
-          .setStrokeStyle(3, 0x000000)
+          .setStrokeStyle(3, 0x000000),
       );
     }
 
     // 2판: 머리카락 추가
     if (gameCount > 1) {
       this.faceElements.push(
-        this.add.circle(this.faceX - 80, this.faceY - 90, 18, 0x654321)
+        this.add.circle(this.faceX - 80, this.faceY - 90, 18, 0x654321),
       );
       this.faceElements.push(
-        this.add.circle(this.faceX - 40, this.faceY - 110, 22, 0x654321)
+        this.add.circle(this.faceX - 40, this.faceY - 110, 22, 0x654321),
       );
       this.faceElements.push(
-        this.add.circle(this.faceX, this.faceY - 120, 25, 0x654321)
+        this.add.circle(this.faceX, this.faceY - 120, 25, 0x654321),
       );
       this.faceElements.push(
-        this.add.circle(this.faceX + 40, this.faceY - 110, 22, 0x654321)
+        this.add.circle(this.faceX + 40, this.faceY - 110, 22, 0x654321),
       );
       this.faceElements.push(
-        this.add.circle(this.faceX + 80, this.faceY - 90, 18, 0x654321)
+        this.add.circle(this.faceX + 80, this.faceY - 90, 18, 0x654321),
       );
     }
 
@@ -127,10 +133,10 @@ class GameScene extends Phaser.Scene {
     // 3판: 볼터치 추가
     if (gameCount > 2) {
       this.faceElements.push(
-        this.add.circle(this.faceX - 70, this.faceY + 15, 20, 0xff9999, 0.6)
+        this.add.circle(this.faceX - 70, this.faceY + 15, 20, 0xff9999, 0.6),
       );
       this.faceElements.push(
-        this.add.circle(this.faceX + 70, this.faceY + 15, 20, 0xff9999, 0.6)
+        this.add.circle(this.faceX + 70, this.faceY + 15, 20, 0xff9999, 0.6),
       );
     }
   }
@@ -148,10 +154,7 @@ class GameScene extends Phaser.Scene {
 
     this.infoText.setText(`${partName} (${this.currentPartIndex + 1}/4)`);
 
-    // 라운드가 진행될수록 속도 증가
-    const baseSpeedMin = 500 + (gameCount - 1) * 100; // 1판: 500, 2판: 600, 3판: 700...
-    const baseSpeedMax = 700 + (gameCount - 1) * 100; // 1판: 700, 2판: 800, 3판: 900...
-    const speed = Phaser.Math.Between(baseSpeedMin, baseSpeedMax);
+    const speed = Phaser.Math.Between(300, 900);
 
     // 파츠별 X 시작 위치 (왼쪽 눈과 오른쪽 눈은 해당 위치에서 떨어짐)
     let startX = this.faceX;
@@ -167,6 +170,14 @@ class GameScene extends Phaser.Scene {
     // 첫 게임은 모든 파츠가 쉽게 (패턴 0), 재시작 후에는 모든 파츠 랜덤 패턴
     const pattern =
       gameCount === 1 ? 0 : gameCount === 2 ? 1 : Phaser.Math.Between(2, 5);
+    console.log(
+      "[GameScene] dropNextPart - gameCount:",
+      gameCount,
+      "/ pattern:",
+      pattern,
+      "/ part:",
+      partType,
+    );
     const duration = ((this.cameras.main.height + 100) / speed) * 1000;
 
     // 기본 Y축 떨어지기
@@ -216,95 +227,126 @@ class GameScene extends Phaser.Scene {
           },
         });
         break;
-      case 2: // S자로 뱀처럼 구불구불
+      case 2: // 아래에서 위로 올라오기
+        this.fallingPart.y = this.cameras.main.height + 50;
+        this.tweens.killTweensOf(this.fallingPart);
         this.tweens.add({
           targets: this.fallingPart,
-          x: startX + 100,
-          duration: duration / 2,
-          ease: "Sine.easeInOut",
-          yoyo: true,
-          repeat: 1,
-        });
-        break;
-
-      case 3: // 지그재그 (좌우 빠르게 왔다갔다)
-        this.tweens.add({
-          targets: this.fallingPart,
-          x: startX + 80,
-          duration: duration / 6,
-          ease: "Linear",
-          yoyo: true,
-          repeat: -1,
-        });
-        break;
-
-      case 4: // 미친듯이 회전하면서 떨어지기
-        this.tweens.add({
-          targets: this.fallingPart,
-          angle: 1440, // 4바퀴
+          y: -50,
           duration: duration,
           ease: "Linear",
-        });
-        // 좌우로도 조금씩 흔들림
-        this.tweens.add({
-          targets: this.fallingPart,
-          x: startX + 40,
-          duration: duration / 3,
-          ease: "Sine.easeInOut",
-          yoyo: true,
-          repeat: 2,
-        });
-        break;
-
-      case 5: // 텔레포트 (순간이동처럼 좌우 점프)
-        this.time.addEvent({
-          delay: 200,
-          callback: () => {
-            if (this.fallingPart && !this.isFixed) {
-              const randomX = Phaser.Math.Between(startX - 100, startX + 100);
-              this.tweens.add({
-                targets: this.fallingPart,
-                x: randomX,
-                duration: 50,
-                ease: "Power2",
-              });
+          onComplete: () => {
+            if (!this.isFixed) {
+              this.fixPart();
             }
           },
-          loop: Math.floor(duration / 200),
         });
         break;
     }
   }
 
   createPart(type, x, y) {
-    let part;
+    const part = this.add.container(x, y);
 
     switch (type) {
       case "leftEye":
-      case "rightEye":
-        // 눈: 원형
-        part = this.add.container(x, y);
-        const eyeBall = this.add.circle(0, 0, 15, 0xffffff);
-        eyeBall.setStrokeStyle(2, 0x000000);
-        const pupil = this.add.circle(0, 0, 6, 0x000000);
-        part.add([eyeBall, pupil]);
+      case "rightEye": {
+        const eg = this.add.graphics();
+        if (this.eyeStyle === 0) {
+          // 동그란 눈
+          const eyeBall = this.add.circle(0, 0, 15, 0xffffff);
+          eyeBall.setStrokeStyle(2, 0x000000);
+          const pupil = this.add.circle(0, 0, 6, 0x000000);
+          part.add([eyeBall, pupil]);
+        } else if (this.eyeStyle === 1) {
+          // 네모 눈
+          const eyeWhite = this.add.rectangle(0, 0, 28, 18, 0xffffff);
+          eyeWhite.setStrokeStyle(2, 0x000000);
+          const eyePupil = this.add.rectangle(3, 0, 8, 8, 0x000000);
+          part.add([eyeWhite, eyePupil]);
+        } else if (this.eyeStyle === 2) {
+          // 실눈 (--)
+          eg.lineStyle(5, 0x000000, 1);
+          eg.beginPath();
+          eg.moveTo(-13, 0);
+          eg.lineTo(13, 0);
+          eg.strokePath();
+          part.add(eg);
+        } else {
+          // 반달 눈 (^)
+          eg.lineStyle(4, 0x000000, 1);
+          eg.beginPath();
+          eg.arc(0, 5, 12, Math.PI, 0, true);
+          eg.strokePath();
+          part.add(eg);
+        }
         break;
+      }
 
-      case "nose":
-        // 코: 삼각형
-        part = this.add.container(x, y);
-        const nose = this.add.triangle(0, 0, 0, -15, -10, 15, 10, 15, 0xffc4a3);
-        nose.setStrokeStyle(2, 0x000000);
-        part.add(nose);
+      case "nose": {
+        const ng = this.add.graphics();
+        if (this.noseStyle === 0) {
+          // 삼각형 코
+          ng.fillStyle(0xffc4a3, 1);
+          ng.lineStyle(2, 0x000000, 1);
+          ng.fillTriangle(-10, 15, 10, 15, 0, -15);
+          ng.strokeTriangle(-10, 15, 10, 15, 0, -15);
+          part.add(ng);
+        } else if (this.noseStyle === 1) {
+          // 버튼 코
+          const noseBody = this.add.circle(0, 0, 12, 0xffb4a3);
+          noseBody.setStrokeStyle(2, 0x000000);
+          const nostrilL = this.add.circle(-4, 4, 3, 0x000000);
+          const nostrilR = this.add.circle(4, 4, 3, 0x000000);
+          part.add([noseBody, nostrilL, nostrilR]);
+        } else {
+          // 긴 뾰족코
+          ng.fillStyle(0xffc4a3, 1);
+          ng.lineStyle(2, 0x000000, 1);
+          ng.fillTriangle(-7, -8, 7, -8, 0, 22);
+          ng.strokeTriangle(-7, -8, 7, -8, 0, 22);
+          part.add(ng);
+        }
         break;
+      }
 
-      case "mouth":
-        // 입: 호
-        part = this.add.container(x, y);
-        const mouth = this.add.arc(0, 0, 40, 0, 180, false, 0xff6b6b);
-        mouth.setStrokeStyle(3, 0x000000);
-        part.add(mouth);
+      case "mouth": {
+        const mg = this.add.graphics();
+        if (this.mouthStyle === 0) {
+          // 호 입
+          const mouth = this.add.arc(0, 0, 40, 0, 180, false, 0xff6b6b);
+          mouth.setStrokeStyle(3, 0x000000);
+          part.add(mouth);
+        } else if (this.mouthStyle === 1) {
+          // 세모 입 (Graphics로 중앙 정렬)
+          mg.fillStyle(0xff4444, 1);
+          mg.lineStyle(3, 0x000000, 1);
+          mg.fillTriangle(-22, -12, 22, -12, 0, 14);
+          mg.strokeTriangle(-22, -12, 22, -12, 0, 14);
+          part.add(mg);
+        } else if (this.mouthStyle === 2) {
+          // 타원 입
+          const mouth = this.add.ellipse(0, 0, 50, 28, 0xff3333);
+          mouth.setStrokeStyle(3, 0x000000);
+          part.add(mouth);
+        } else {
+          // 고양이 입 (w 모양)
+          mg.lineStyle(4, 0x000000, 1);
+          mg.beginPath();
+          mg.moveTo(-18, -2);
+          mg.lineTo(-5, 10);
+          mg.strokePath();
+          mg.beginPath();
+          mg.moveTo(18, -2);
+          mg.lineTo(5, 10);
+          mg.strokePath();
+          mg.beginPath();
+          mg.arc(0, 10, 5, Math.PI, 0, true);
+          mg.strokePath();
+          part.add(mg);
+        }
         break;
+      }
     }
 
     part.partType = type;
@@ -345,18 +387,18 @@ class GameScene extends Phaser.Scene {
       score >= 90
         ? "완벽!"
         : score >= 70
-        ? "좋아요!"
-        : score >= 50
-        ? "괜찮아요"
-        : "아쉬워요";
+          ? "좋아요!"
+          : score >= 50
+            ? "괜찮아요"
+            : "아쉬워요";
     const feedbackColor =
       score >= 90
         ? "#27ae60"
         : score >= 70
-        ? "#f39c12"
-        : score >= 50
-        ? "#e67e22"
-        : "#e74c3c";
+          ? "#f39c12"
+          : score >= 50
+            ? "#e67e22"
+            : "#e74c3c";
 
     const feedbackText = this.add
       .text(
@@ -367,7 +409,7 @@ class GameScene extends Phaser.Scene {
           fontSize: "20px",
           fontStyle: "bold",
           color: feedbackColor,
-        }
+        },
       )
       .setOrigin(0, 0.5);
 
@@ -395,6 +437,7 @@ class GameScene extends Phaser.Scene {
 
     // 게임 판수 증가
     gameCount++;
+    console.log("[GameScene] gameOver - gameCount 증가:", gameCount);
 
     // 고정된 파츠들의 위치 정보 수집
     const partsData = {};
@@ -413,6 +456,9 @@ class GameScene extends Phaser.Scene {
         partsData: partsData,
         faceX: this.faceX,
         faceY: this.faceY,
+        eyeStyle: this.eyeStyle,
+        noseStyle: this.noseStyle,
+        mouthStyle: this.mouthStyle,
       });
     });
   }

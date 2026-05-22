@@ -9,6 +9,9 @@ class ResultScene extends Phaser.Scene {
     this.partsData = data.partsData || {};
     this.faceX = data.faceX || 400;
     this.faceY = data.faceY || 300;
+    this.eyeStyle = data.eyeStyle ?? 0;
+    this.noseStyle = data.noseStyle ?? 0;
+    this.mouthStyle = data.mouthStyle ?? 0;
   }
 
   create() {
@@ -22,16 +25,19 @@ class ResultScene extends Phaser.Scene {
         0,
         this.cameras.main.width,
         this.cameras.main.height,
-        0xf0e6d2
+        0xf0e6d2,
       )
       .setOrigin(0);
 
     // 왼쪽에 만든 얼굴 표시
-    this.add.text(200, centerY - 200, '당신이 만든 얼굴', {
-      fontSize: '24px',
-      fontStyle: 'bold',
-      color: '#2c3e50',
-    }).setOrigin(0.5).setAlpha(0.6);
+    this.add
+      .text(200, centerY - 200, "당신이 만든 얼굴", {
+        fontSize: "24px",
+        fontStyle: "bold",
+        color: "#2c3e50",
+      })
+      .setOrigin(0.5)
+      .setAlpha(0.6);
 
     this.drawCreatedFace(200, centerY);
 
@@ -123,10 +129,10 @@ class ResultScene extends Phaser.Scene {
         score >= 90
           ? "#27ae60"
           : score >= 70
-          ? "#f39c12"
-          : score >= 50
-          ? "#e67e22"
-          : "#e74c3c";
+            ? "#f39c12"
+            : score >= 50
+              ? "#e67e22"
+              : "#e74c3c";
       this.add
         .text(centerX + 150, yPos, `${score}점`, {
           fontSize: "20px",
@@ -144,7 +150,7 @@ class ResultScene extends Phaser.Scene {
       centerY + 220,
       180,
       55,
-      0x3498db
+      0x3498db,
     );
     retryButton.setStrokeStyle(3, 0x2980b9);
     retryButton.setInteractive({ useHandCursor: true });
@@ -163,7 +169,7 @@ class ResultScene extends Phaser.Scene {
       centerY + 220,
       180,
       55,
-      0x95a5a6
+      0x95a5a6,
     );
     homeButton.setStrokeStyle(3, 0x7f8c8d);
     homeButton.setInteractive({ useHandCursor: true });
@@ -216,8 +222,9 @@ class ResultScene extends Phaser.Scene {
   }
 
   drawCreatedFace(x, y) {
+    console.log("[ResultScene] drawCreatedFace - gameCount:", gameCount);
     // 4판: 귀 추가 (얼굴 윤곽보다 먼저 그려서 뒤에 배치)
-    if (gameCount > 4) {
+    if (gameCount > 3) {
       this.add.ellipse(x - 115, y, 30, 50, 0xffd4a3);
       this.add.ellipse(x - 115, y, 30, 50).setStrokeStyle(3, 0x000000);
       this.add.ellipse(x + 115, y, 30, 50, 0xffd4a3);
@@ -225,7 +232,7 @@ class ResultScene extends Phaser.Scene {
     }
 
     // 2판: 머리카락 추가
-    if (gameCount > 2) {
+    if (gameCount > 1) {
       this.add.circle(x - 80, y - 90, 18, 0x654321);
       this.add.circle(x - 40, y - 110, 22, 0x654321);
       this.add.circle(x, y - 120, 25, 0x654321);
@@ -238,7 +245,7 @@ class ResultScene extends Phaser.Scene {
     face.setStrokeStyle(4, 0x000000);
 
     // 3판: 볼터치 추가
-    if (gameCount > 3) {
+    if (gameCount > 2) {
       this.add.circle(x - 70, y + 15, 20, 0xff9999, 0.6);
       this.add.circle(x + 70, y + 15, 20, 0xff9999, 0.6);
     }
@@ -257,32 +264,81 @@ class ResultScene extends Phaser.Scene {
   }
 
   createPartVisual(type, x, y) {
-    let part;
+    const alpha = 0.3;
 
     switch (type) {
       case "leftEye":
-      case "rightEye":
-        // 눈: 원형
-        const eyeBall = this.add.circle(x, y, 15, 0xffffff);
-        eyeBall.setStrokeStyle(2, 0x000000);
-        eyeBall.setAlpha(0.3);
-        const pupil = this.add.circle(x, y, 6, 0x000000);
-        pupil.setAlpha(0.3);
+      case "rightEye": {
+        const eg = this.add.graphics().setAlpha(alpha);
+        if (this.eyeStyle === 0) {
+          this.add.circle(x, y, 15, 0xffffff).setStrokeStyle(2, 0x000000).setAlpha(alpha);
+          this.add.circle(x, y, 6, 0x000000).setAlpha(alpha);
+        } else if (this.eyeStyle === 1) {
+          this.add.rectangle(x, y, 28, 18, 0xffffff).setStrokeStyle(2, 0x000000).setAlpha(alpha);
+          this.add.rectangle(x + 3, y, 8, 8, 0x000000).setAlpha(alpha);
+        } else if (this.eyeStyle === 2) {
+          eg.lineStyle(5, 0x000000, 1);
+          eg.beginPath();
+          eg.moveTo(x - 13, y);
+          eg.lineTo(x + 13, y);
+          eg.strokePath();
+        } else {
+          eg.lineStyle(4, 0x000000, 1);
+          eg.beginPath();
+          eg.arc(x, y + 5, 12, Math.PI, 0, true);
+          eg.strokePath();
+        }
         break;
+      }
 
-      case "nose":
-        // 코: 삼각형
-        const nose = this.add.triangle(x, y, 0, -15, -10, 15, 10, 15, 0xffc4a3);
-        nose.setStrokeStyle(2, 0x000000);
-        nose.setAlpha(0.3);
+      case "nose": {
+        const ng = this.add.graphics().setAlpha(alpha);
+        if (this.noseStyle === 0) {
+          ng.fillStyle(0xffc4a3, 1);
+          ng.lineStyle(2, 0x000000, 1);
+          ng.fillTriangle(x - 10, y + 15, x + 10, y + 15, x, y - 15);
+          ng.strokeTriangle(x - 10, y + 15, x + 10, y + 15, x, y - 15);
+        } else if (this.noseStyle === 1) {
+          this.add.circle(x, y, 12, 0xffb4a3).setStrokeStyle(2, 0x000000).setAlpha(alpha);
+          this.add.circle(x - 4, y + 4, 3, 0x000000).setAlpha(alpha);
+          this.add.circle(x + 4, y + 4, 3, 0x000000).setAlpha(alpha);
+        } else {
+          ng.fillStyle(0xffc4a3, 1);
+          ng.lineStyle(2, 0x000000, 1);
+          ng.fillTriangle(x - 7, y - 8, x + 7, y - 8, x, y + 22);
+          ng.strokeTriangle(x - 7, y - 8, x + 7, y - 8, x, y + 22);
+        }
         break;
+      }
 
-      case "mouth":
-        // 입: 호
-        const mouth = this.add.arc(x, y, 40, 0, 180, false, 0xff6b6b);
-        mouth.setStrokeStyle(3, 0x000000);
-        mouth.setAlpha(0.3);
+      case "mouth": {
+        const mg = this.add.graphics().setAlpha(alpha);
+        if (this.mouthStyle === 0) {
+          this.add.arc(x, y, 40, 0, 180, false, 0xff6b6b).setStrokeStyle(3, 0x000000).setAlpha(alpha);
+        } else if (this.mouthStyle === 1) {
+          mg.fillStyle(0xff4444, 1);
+          mg.lineStyle(3, 0x000000, 1);
+          mg.fillTriangle(x - 22, y - 12, x + 22, y - 12, x, y + 14);
+          mg.strokeTriangle(x - 22, y - 12, x + 22, y - 12, x, y + 14);
+        } else if (this.mouthStyle === 2) {
+          this.add.ellipse(x, y, 50, 28, 0xff3333).setStrokeStyle(3, 0x000000).setAlpha(alpha);
+        } else {
+          // 고양이 입 (w 모양)
+          mg.lineStyle(4, 0x000000, 1);
+          mg.beginPath();
+          mg.moveTo(x - 18, y - 2);
+          mg.lineTo(x - 5, y + 10);
+          mg.strokePath();
+          mg.beginPath();
+          mg.moveTo(x + 18, y - 2);
+          mg.lineTo(x + 5, y + 10);
+          mg.strokePath();
+          mg.beginPath();
+          mg.arc(x, y + 10, 5, Math.PI, 0, true);
+          mg.strokePath();
+        }
         break;
+      }
     }
   }
 }
