@@ -5,6 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "npx http-server -p 8080 -o -c-1",
+    "vercel-build": "echo 'static site'",
     "electron": "electron .",
     "build": "electron-builder --windows --x64",
     "build:all": "electron-builder --windows --mac --linux"
