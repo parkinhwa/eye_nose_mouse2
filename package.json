@@ -8,6 +8,7 @@
     "vercel-build": "echo 'static site'",
     "electron": "electron .",
     "build": "electron-builder --windows --x64",
+    "build:dir": "electron-builder --windows --x64 --dir",
     "build:all": "electron-builder --windows --mac --linux"
   },
   "build": {
