@@ -4,10 +4,11 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1000,
     height: 800,
+    backgroundColor: "#f0e6d2",
     webPreferences: {
       nodeIntegration: false,
-      contextIsolation: true
-    }
+      contextIsolation: true,
+    },
   });
 
   win.loadFile('index.html');

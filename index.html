@@ -18,11 +18,37 @@
         #game-container {
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
+        #loading {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #2c3e50;
+            color: #f0e6d2;
+            font-size: 20px;
+            gap: 20px;
+            z-index: 999;
+        }
+        #loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #f0e6d2;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+    <div id="loading">
+        <div id="loading-spinner"></div>
+        <div>로딩 중...</div>
+    </div>
     <div id="game-container"></div>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+    <script src="lib/phaser.min.js"></script>
     <script src="src/scenes/StartScene.js"></script>
     <script src="src/scenes/GameScene.js"></script>
     <script src="src/scenes/ResultScene.js"></script>

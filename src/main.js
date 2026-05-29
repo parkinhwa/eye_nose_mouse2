@@ -25,3 +25,8 @@ const config = {
 
 // 게임 인스턴스 생성
 const game = new Phaser.Game(config);
+
+game.events.once('ready', () => {
+    const loading = document.getElementById('loading');
+    if (loading) loading.style.display = 'none';
+});
